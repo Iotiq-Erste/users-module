@@ -5,6 +5,7 @@ import com.iotiq.commons.exceptions.RequiredFieldMissingException;
 import com.iotiq.commons.util.PasswordUtil;
 import com.iotiq.user.domain.User;
 import com.iotiq.user.domain.authorities.UserManagementAuthority;
+import com.iotiq.user.exceptions.DuplicateUserDataException;
 import com.iotiq.user.exceptions.InvalidCredentialException;
 import com.iotiq.user.exceptions.UserNotFoundException;
 import com.iotiq.user.messages.request.UpdatePasswordDto;
@@ -53,8 +54,16 @@ public class UserService {
         return userRepository.existsByAccountInfoUsername(username);
     }
 
+    @Transactional(readOnly = true)
+    public boolean existByEmail(String email) {
+        return userRepository.existsByPersonalInfoEmail(email);
+    }
+
     @Transactional
     public User create(UserCreateDto request) {
+        if(existByEmail(request.getEmail())) {
+            throw new DuplicateUserDataException("email");
+        }
         User user = new User();
 
         userMapper.map(request, user);
