@@ -2,6 +2,7 @@ package com.iotiq.user;
 
 import com.iotiq.user.domain.User;
 import com.iotiq.user.domain.authorities.BaseRole;
+import com.iotiq.user.exceptions.DuplicateUserDataException;
 import com.iotiq.user.internal.UserRepository;
 import com.iotiq.user.messages.request.UserCreateDto;
 import com.iotiq.user.messages.request.UserUpdateDto;
@@ -111,6 +112,36 @@ class UserApplicationTests {
 
     @Test
     @Order(2)
+    void addWithDuplicateEmail() throws Exception {
+        int databaseSizeBeforeCreate = userRepository.findAll().size();
+
+        UserCreateDto userCreateDto = new UserCreateDto();
+
+        userCreateDto.setEmail(MAIL);
+        userCreateDto.setFirstname(FIRSTNAME+"duplicate");
+        userCreateDto.setLastname(LASTNAME+"duplicate");
+        userCreateDto.setUsername(USERNAME+"duplicate");
+        userCreateDto.setPassword(PASSWORD+"duplicate");
+        userCreateDto.setRole(BaseRole.ADMIN);
+
+        ResultActions result = mockMvc.perform(
+                post("/api/v1/users")
+                        .with(csrf().asHeader())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtil.convertObjectToJsonBytes(userCreateDto))
+        );
+
+        result.andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.detail").value(new DuplicateUserDataException("email").getDefaultMessage()));
+
+        assertPersistedUsers(users -> {
+            assertThat(users).hasSize(databaseSizeBeforeCreate);
+        });
+    }
+
+    @Test
+    @Order(3)
     void findById() throws Exception {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
@@ -132,7 +163,7 @@ class UserApplicationTests {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     void update() throws Exception {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
@@ -176,7 +207,7 @@ class UserApplicationTests {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void remove() throws Exception {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
