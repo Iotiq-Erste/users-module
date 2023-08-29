@@ -24,9 +24,6 @@ pipeline {
             steps {
                 echo 'Run parent project build/deployment job'
                 build job: env.PARENT_PROJECT_DEPLOYMENT_JOB,
-                        parameters:[
-                                string(name: 'COMMIT_MESSAGE', value: "${env.COMMIT_MESSAGE}")
-                        ],
                         wait: false
             }
         }
