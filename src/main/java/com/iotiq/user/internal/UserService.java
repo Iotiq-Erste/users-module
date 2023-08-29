@@ -48,6 +48,11 @@ public class UserService {
         return userRepository.findByAccountInfoUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public boolean existByUserName(String username) {
+        return userRepository.existsByAccountInfoUsername(username);
+    }
+
     @Transactional
     public User create(UserCreateDto request) {
         User user = new User();
