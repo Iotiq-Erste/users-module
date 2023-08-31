@@ -59,6 +59,10 @@ public class UserService {
         return userRepository.existsByPersonalInfoEmail(email);
     }
 
+    public int countUsersWithEmailAndNotId(UUID id, String email) {
+        return userRepository.countUsersWithPersonalInfoEmailAndNotId(id, email);
+    }
+
     @Transactional
     public User create(UserCreateDto request) {
         if(existByEmail(request.getEmail())) {
@@ -79,6 +83,9 @@ public class UserService {
 
     @Transactional
     public User update(UUID id, UserUpdateDto request) {
+        if(countUsersWithEmailAndNotId(id, request.getEmail()) > 0) {
+            throw new DuplicateUserDataException("email");
+        }
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
         user.setUsername(request.getUsername());
