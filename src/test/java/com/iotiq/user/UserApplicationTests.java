@@ -208,6 +208,37 @@ class UserApplicationTests {
 
     @Test
     @Order(5)
+    void updateWithDuplicateEmail() throws Exception {
+        int databaseSizeBeforeCreate = userRepository.findAll().size();
+
+        assertThat(databaseSizeBeforeCreate).isEqualTo(2);
+
+        UserUpdateDto userUpdateDto = new UserUpdateDto();
+
+        userUpdateDto.setEmail("email@m.com");
+        userUpdateDto.setFirstname(FIRSTNAME + "updated_2");
+        userUpdateDto.setLastname(LASTNAME + "updated_2");
+        userUpdateDto.setUsername(USERNAME + "updated_2");
+        userUpdateDto.setRole(BaseRole.ADMIN);
+
+        ResultActions result = mockMvc.perform(
+                put("/api/v1/users/" + id)
+                        .with(csrf().asHeader())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtil.convertObjectToJsonBytes(userUpdateDto))
+        );
+
+        result.andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.detail").value(new DuplicateUserDataException("email").getDefaultMessage()));
+
+        assertPersistedUsers(users -> {
+            assertThat(users).hasSize(databaseSizeBeforeCreate);
+        });
+    }
+
+    @Test
+    @Order(6)
     void remove() throws Exception {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
