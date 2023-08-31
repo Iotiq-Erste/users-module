@@ -14,9 +14,7 @@ public class UserUpdateDto {
     private String username;
     @NotNull
     private Role role;
-    @NotEmpty
     private String firstname;
-    @NotEmpty
     private String lastname;
     @Email(message = "user.emailFormat")
     @NotEmpty(message = "user.email")
