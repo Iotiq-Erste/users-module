@@ -1,11 +1,14 @@
 package com.iotiq.user.security;
 
 import com.iotiq.user.domain.User;
+import com.iotiq.user.exceptions.InvalidCredentialException;
 import com.iotiq.user.exceptions.InvalidRefreshTokenException;
 import com.iotiq.user.internal.UserService;
 import com.iotiq.user.messages.request.LoginRequest;
+import com.iotiq.user.messages.request.ProfileUpdateRequest;
 import com.iotiq.user.messages.request.RefreshTokenRequest;
 import com.iotiq.user.messages.response.LoginDto;
+import com.iotiq.user.messages.response.UserDto;
 import com.iotiq.user.security.jwt.JWTFilter;
 import com.iotiq.user.security.jwt.TokenProvider;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -92,5 +96,19 @@ public class AuthenticationController {
             Authentication authenticationToken, Collection<T> authorities) {
         return new PreAuthenticatedAuthenticationToken(authenticationToken.getPrincipal(),
                 authenticationToken.getCredentials(), authorities);
+    }
+
+    @GetMapping("/me")
+    public UserDto getCurrentUser(Principal principal) {
+        if (principal == null) throw new InvalidCredentialException();
+        User user = userService.find(principal.getName());
+        return UserDto.of(user);
+    }
+
+    @PutMapping("/me")
+    public UserDto updateCurrentUser(@RequestBody @Valid ProfileUpdateRequest request, Principal principal) {
+        if (principal == null) throw new InvalidCredentialException();
+        User user = userService.updateProfile(principal.getName(), request);
+        return UserDto.of(user);
     }
 }

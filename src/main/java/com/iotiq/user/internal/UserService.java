@@ -5,12 +5,10 @@ import com.iotiq.commons.exceptions.RequiredFieldMissingException;
 import com.iotiq.commons.util.PasswordUtil;
 import com.iotiq.user.domain.User;
 import com.iotiq.user.domain.authorities.UserManagementAuthority;
+import com.iotiq.user.exceptions.DuplicateUserDataException;
 import com.iotiq.user.exceptions.InvalidCredentialException;
 import com.iotiq.user.exceptions.UserNotFoundException;
-import com.iotiq.user.messages.request.UpdatePasswordDto;
-import com.iotiq.user.messages.request.UserCreateDto;
-import com.iotiq.user.messages.request.UserFilter;
-import com.iotiq.user.messages.request.UserUpdateDto;
+import com.iotiq.user.messages.request.*;
 import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -145,5 +143,16 @@ public class UserService {
             };
         }
     }
+    @Transactional
+    public User updateProfile(String username, ProfileUpdateRequest request) {
+        User user = find(username);
+        if(userRepository.countUsersWithAccountInfoUsernameAndNotId(user.getId(), request.getUsername()) > 0) {
+            throw new DuplicateUserDataException("username");
+        }
+        user.setUsername(request.getUsername());
+        user.getPersonalInfo().setFirstName(request.getFirstname());
+        user.getPersonalInfo().setLastName(request.getLastname());
 
+        return user;
+    }
 }
