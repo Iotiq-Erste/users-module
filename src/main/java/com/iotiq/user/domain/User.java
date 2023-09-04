@@ -3,6 +3,7 @@ package com.iotiq.user.domain;
 import com.iotiq.user.domain.authorities.Role;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,6 +19,10 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "users")
+@NamedQuery(
+        name = "User.countUsersWithAccountInfoUsernameAndNotId",
+        query = "SELECT COUNT(u) FROM User u WHERE u.accountInfo.username = :username AND u.id <> :id"
+)
 @EqualsAndHashCode(callSuper = true)
 public class User extends AbstractPersistable<UUID> implements UserDetails {
 
