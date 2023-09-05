@@ -38,11 +38,11 @@ public class UserService {
         return userRepository.findAll(userFilter.buildSpecification(), userFilter.buildPageable(sort));
     }
 
-    public User find(UUID id) {
+    public User findById(UUID id) {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
-    public User find(String username) {
+    public User findByUserName(String username) {
         return userRepository.findByAccountInfoUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
@@ -145,7 +145,7 @@ public class UserService {
     }
     @Transactional
     public User updateProfile(String username, ProfileUpdateRequest request) {
-        User user = find(username);
+        User user = findByUserName(username);
         if(userRepository.existsByAccountInfoUsernameAndIdIsNot(request.getUsername(), user.getId())) {
             throw new DuplicateUserDataException("username");
         }

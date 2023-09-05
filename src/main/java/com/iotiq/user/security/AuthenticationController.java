@@ -59,7 +59,7 @@ public class AuthenticationController {
             refreshToken = tokenProvider.createRefreshToken(authentication);
         }
 
-        User user = userService.find(loginRequest.getUsername());
+        User user = userService.findByUserName(loginRequest.getUsername());
         return LoginDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -74,7 +74,7 @@ public class AuthenticationController {
         if (!tokenProvider.validateToken(request.getRefreshToken())) throw new InvalidRefreshTokenException();
 
         var authenticationToken = tokenProvider.getAuthentication(request.getRefreshToken());
-        User user = userService.find(getUserName(authenticationToken));
+        User user = userService.findByUserName(getUserName(authenticationToken));
 
         var authorities = user.getAuthorities();
         String accessToken = tokenProvider.createAccessToken(createPreAuthToken(authenticationToken, authorities));
@@ -101,7 +101,7 @@ public class AuthenticationController {
     @GetMapping("/me")
     public UserDto getCurrentUser(Principal principal) {
         if (principal == null) throw new InvalidCredentialException();
-        User user = userService.find(principal.getName());
+        User user = userService.findByUserName(principal.getName());
         return UserDto.of(user);
     }
 
