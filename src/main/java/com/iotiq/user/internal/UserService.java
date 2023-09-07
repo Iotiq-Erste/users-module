@@ -152,8 +152,7 @@ public class UserService {
         return findByUserName(userDetails.getUsername());
     }
     @Transactional
-    public User updateProfile(String username, ProfileUpdateRequest request) {
-        User user = findByUserName(username);
+    public User updateProfile(User user, ProfileUpdateRequest request) {
         if(userRepository.existsByAccountInfoUsernameAndIdIsNot(request.getUsername(), user.getId())) {
             throw new DuplicateUserDataException("username");
         }

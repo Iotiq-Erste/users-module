@@ -1,7 +1,6 @@
 package com.iotiq.user.security;
 
 import com.iotiq.user.domain.User;
-import com.iotiq.user.exceptions.InvalidCredentialException;
 import com.iotiq.user.exceptions.InvalidRefreshTokenException;
 import com.iotiq.user.internal.UserService;
 import com.iotiq.user.messages.request.LoginRequest;
@@ -24,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -99,16 +97,14 @@ public class AuthenticationController {
     }
 
     @GetMapping("/me")
-    public UserDto getCurrentUser(Principal principal) {
-        if (principal == null) throw new InvalidCredentialException();
-        User user = userService.findByUserName(principal.getName());
+    public UserDto getCurrentUser() {
+        User user = userService.getCurrentUser();
         return UserDto.of(user);
     }
 
     @PutMapping("/me")
-    public UserDto updateCurrentUser(@RequestBody @Valid ProfileUpdateRequest request, Principal principal) {
-        if (principal == null) throw new InvalidCredentialException();
-        User user = userService.updateProfile(principal.getName(), request);
+    public UserDto updateCurrentUser(@RequestBody @Valid ProfileUpdateRequest request) {
+        User user = userService.updateProfile(userService.getCurrentUser(), request);
         return UserDto.of(user);
     }
 }
