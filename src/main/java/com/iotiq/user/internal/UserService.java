@@ -16,6 +16,7 @@ import org.modelmapper.ExpressionMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -142,6 +143,13 @@ public class UserService {
                 mapping.skip(User::setUsername);
             };
         }
+    }
+    
+    public User getCurrentUser(){
+        // Retrieve the currently logged-in user
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (userDetails == null) throw new InvalidCredentialException();
+        return findByUserName(userDetails.getUsername());
     }
     @Transactional
     public User updateProfile(String username, ProfileUpdateRequest request) {
