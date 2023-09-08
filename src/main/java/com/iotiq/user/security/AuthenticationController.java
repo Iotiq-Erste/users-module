@@ -4,8 +4,10 @@ import com.iotiq.user.domain.User;
 import com.iotiq.user.exceptions.InvalidRefreshTokenException;
 import com.iotiq.user.internal.UserService;
 import com.iotiq.user.messages.request.LoginRequest;
+import com.iotiq.user.messages.request.ProfileUpdateRequest;
 import com.iotiq.user.messages.request.RefreshTokenRequest;
 import com.iotiq.user.messages.response.LoginDto;
+import com.iotiq.user.messages.response.UserDto;
 import com.iotiq.user.security.jwt.JWTFilter;
 import com.iotiq.user.security.jwt.TokenProvider;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,7 +57,7 @@ public class AuthenticationController {
             refreshToken = tokenProvider.createRefreshToken(authentication);
         }
 
-        User user = userService.find(loginRequest.getUsername());
+        User user = userService.findByUserName(loginRequest.getUsername());
         return LoginDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -70,7 +72,7 @@ public class AuthenticationController {
         if (!tokenProvider.validateToken(request.getRefreshToken())) throw new InvalidRefreshTokenException();
 
         var authenticationToken = tokenProvider.getAuthentication(request.getRefreshToken());
-        User user = userService.find(getUserName(authenticationToken));
+        User user = userService.findByUserName(getUserName(authenticationToken));
 
         var authorities = user.getAuthorities();
         String accessToken = tokenProvider.createAccessToken(createPreAuthToken(authenticationToken, authorities));
@@ -92,5 +94,17 @@ public class AuthenticationController {
             Authentication authenticationToken, Collection<T> authorities) {
         return new PreAuthenticatedAuthenticationToken(authenticationToken.getPrincipal(),
                 authenticationToken.getCredentials(), authorities);
+    }
+
+    @GetMapping("/me")
+    public UserDto getCurrentUser() {
+        User user = userService.getCurrentUser();
+        return UserDto.of(user);
+    }
+
+    @PutMapping("/me")
+    public UserDto updateCurrentUser(@RequestBody @Valid ProfileUpdateRequest request) {
+        User user = userService.updateProfile(userService.getCurrentUser(), request);
+        return UserDto.of(user);
     }
 }

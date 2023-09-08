@@ -42,7 +42,7 @@ public class UserController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority(@UserManagementAuth.VIEW) or #id.equals(principal.id)")
     public UserDto getOne(@PathVariable UUID id) {
-        User user = userService.find(id);
+        User user = userService.findById(id);
         return UserDto.of(user);
     }
 
