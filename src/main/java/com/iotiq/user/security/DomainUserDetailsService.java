@@ -1,5 +1,6 @@
 package com.iotiq.user.security;
 
+import com.iotiq.user.domain.TransientUser;
 import com.iotiq.user.domain.User;
 import com.iotiq.user.internal.UserRepository;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class DomainUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " was not found in the database"));
     }
 
-    private org.springframework.security.core.userdetails.User createSpringSecurityUser(User user) {
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
+    private TransientUser createSpringSecurityUser(User user) {
+        return new TransientUser(user.getId(), user.getUsername(), user.getPassword(), user.getAuthorities());
     }
 }

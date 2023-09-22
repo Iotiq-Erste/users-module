@@ -1,6 +1,7 @@
 package com.iotiq.user.security.jwt;
 
 
+import com.iotiq.user.domain.TransientUser;
 import com.iotiq.user.security.SecurityMetersService;
 import com.iotiq.user.security.config.TokenConfig;
 import io.jsonwebtoken.*;
@@ -13,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
@@ -24,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -72,9 +73,11 @@ public class TokenProvider {
         var expiryInMilis = Instant.now()
                 .plus(configProperties.getAccess().getExpirationMinutes(), ChronoUnit.MINUTES)
                 .toEpochMilli();
+        TransientUser principal = (TransientUser) authentication.getPrincipal();
         return Jwts
                 .builder()
                 .setSubject(authentication.getName())
+                .setId(principal.getId().toString())
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(new Date(expiryInMilis))
@@ -100,9 +103,9 @@ public class TokenProvider {
                 .stream(claims.getOrDefault(AUTHORITIES_KEY, "").toString().split(","))
                 .filter(auth -> !auth.trim().isEmpty())
                 .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                .toList();
 
-        User principal = new User(claims.getSubject(), "", authorities);
+        TransientUser principal = new TransientUser(UUID.fromString(claims.getId()), claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
