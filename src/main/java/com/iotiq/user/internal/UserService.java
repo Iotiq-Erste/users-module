@@ -54,6 +54,8 @@ public class UserService {
 
     @Transactional
     public User create(UserCreateDto request) {
+        validateUniqueUserData(request.getUsername(), request.getEmail());
+
         User user = new User();
 
         userMapper.map(request, user);
@@ -69,6 +71,8 @@ public class UserService {
 
     @Transactional
     public User update(UUID id, UserUpdateDto request) {
+        validateUniqueUserDataWithExclusion(id, request.getUsername(), request.getEmail());
+
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
         user.setUsername(request.getUsername());
@@ -78,6 +82,23 @@ public class UserService {
         user.setRole(request.getRole());
 
         return user;
+    }
+    public void validateUniqueUserData(String username, String email) {
+        if (userRepository.existsByAccountInfoUsername(username)) {
+            throw new DuplicateUserDataException("username");
+        }
+        if (userRepository.existsByPersonalInfoEmail(email)) {
+            throw new DuplicateUserDataException("email");
+        }
+    }
+
+    public void validateUniqueUserDataWithExclusion(UUID id, String username, String email) {
+        if (userRepository.existsByAccountInfoUsernameAndIdIsNot(username, id)) {
+            throw new DuplicateUserDataException("username");
+        }
+        if (userRepository.existsByPersonalInfoEmailAndIdIsNot(email, id)) {
+            throw new DuplicateUserDataException("email");
+        }
     }
 
     @Transactional
@@ -144,16 +165,17 @@ public class UserService {
             };
         }
     }
-    
-    public User getCurrentUser(){
+
+    public User getCurrentUser() {
         // Retrieve the currently logged-in user
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (userDetails == null) throw new InvalidCredentialException();
         return findByUserName(userDetails.getUsername());
     }
+
     @Transactional
     public User updateProfile(User user, ProfileUpdateRequest request) {
-        if(userRepository.existsByAccountInfoUsernameAndIdIsNot(request.getUsername(), user.getId())) {
+        if (userRepository.existsByAccountInfoUsernameAndIdIsNot(request.getUsername(), user.getId())) {
             throw new DuplicateUserDataException("username");
         }
         user.setUsername(request.getUsername());
