@@ -13,11 +13,5 @@ public class ContainersConfig {
     public PostgreSQLContainer<?> postgreSQLContainer() {
         return new PostgreSQLContainer<>("postgres:15.2-alpine");
     }
-
-//    @Bean
-//    @ServiceConnection
-//    public KafkaContainer kafkaContainer() {
-//        return new KafkaContainer(
-//                DockerImageName.parse("confluentinc/cp-kafka:7.2.1"));
-//    }
+    
 }
