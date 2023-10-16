@@ -83,12 +83,10 @@ public class UserService {
 
         return user;
     }
-    public void validateUniqueUserData(String username, String email) {
-        if (userRepository.existsByAccountInfoUsername(username)) {
-            throw new DuplicateUserDataException("username");
-        }
-        if (userRepository.existsByPersonalInfoEmail(email)) {
-            throw new DuplicateUserDataException("email");
+    private void validateUniqueUserData(String username, String email) {
+        boolean exists = userRepository.existsByAccountInfoUsernameOrPersonalInfoEmail(username, email);
+        if (exists) {
+            throw new DuplicateUserDataException("usernameOrEmail");
         }
     }
 
