@@ -21,6 +21,8 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 public class User extends AbstractPersistable<UUID> implements UserDetails {
 
+    public static final String ENTITY_NAME = "user";
+
     @Embedded
     private AccountInfo accountInfo;
     @Embedded
