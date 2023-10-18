@@ -85,4 +85,7 @@ public class User extends AbstractPersistable<UUID> implements UserDetails {
     public void setUsername(String username) {
         this.accountInfo.setUsername(username);
     }
+    public void setId(UUID id){
+        super.setId(id);
+    }
 }
