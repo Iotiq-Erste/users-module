@@ -2,13 +2,16 @@ package com.iotiq.user.domain;
 
 import com.iotiq.user.domain.authorities.Role;
 import com.iotiq.user.domain.authorities.RoleColumnConverter;
-import jakarta.persistence.*;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Transient;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 
 @Data
 @Embeddable
@@ -23,6 +26,7 @@ public class AccountSecurity implements Serializable {
 
     @Transient
     public Collection<GrantedAuthority> getAuthorities() {
+        if (role == null) return Collections.emptySet();
         return role.getAuthorities();
     }
 }
