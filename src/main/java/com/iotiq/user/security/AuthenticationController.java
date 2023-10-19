@@ -8,12 +8,10 @@ import com.iotiq.user.messages.request.ProfileUpdateRequest;
 import com.iotiq.user.messages.request.RefreshTokenRequest;
 import com.iotiq.user.messages.response.LoginDto;
 import com.iotiq.user.messages.response.UserDto;
-import com.iotiq.user.security.jwt.JWTFilter;
 import com.iotiq.user.security.jwt.TokenProvider;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -49,8 +47,6 @@ public class AuthenticationController {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = tokenProvider.createAccessToken(authentication);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + accessToken);
 
         String refreshToken = null;
         if (loginRequest.isRememberMe()) {
@@ -76,8 +72,7 @@ public class AuthenticationController {
 
         var authorities = user.getAuthorities();
         String accessToken = tokenProvider.createAccessToken(createPreAuthToken(authenticationToken, authorities));
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + accessToken);
+
         return LoginDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
