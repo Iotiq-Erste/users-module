@@ -19,7 +19,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "user_type")
-@DiscriminatorValue("NormalUser")
+@DiscriminatorValue("nativeUser")
 public class User extends AbstractPersistable<UUID> implements UserDetails {
 
     public static final String ENTITY_NAME = "user";
