@@ -55,11 +55,8 @@ public class WebConfig implements ServletContextInitializer, WebServerFactoryCus
     }
 
     private void setLocationForStaticAssets(WebServerFactory server) {
-        if (server instanceof ConfigurableServletWebServerFactory) {
-            ConfigurableServletWebServerFactory servletWebServer = (ConfigurableServletWebServerFactory) server;
-            File root;
-            String prefixPath = resolvePathPrefix();
-            root = new File(prefixPath + "build/resources/main/static/");
+        if (server instanceof ConfigurableServletWebServerFactory servletWebServer) {
+            File root = new File(resolvePathPrefix() + "build/resources/main/static/");
             if (root.exists() && root.isDirectory()) {
                 servletWebServer.setDocumentRoot(root);
             }
