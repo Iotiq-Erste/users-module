@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@Deprecated
 public class AuthenticationController {
 
     private final TokenProvider tokenProvider;
