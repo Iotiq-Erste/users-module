@@ -19,4 +19,5 @@ public class UserUpdateDto {
     @Email(message = "user.emailFormat")
     @NotEmpty(message = "user.email")
     private String email;
+    private String keycloakId;
 }
