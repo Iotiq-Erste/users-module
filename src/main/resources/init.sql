@@ -14,7 +14,8 @@ create table users
     last_name               varchar(255),
     phone_number            varchar(255),
     web_page                varchar(255),
-    role                    varchar(255)
+    role                    varchar(255),
+    user_type               varchar(255)
 );
 
 INSERT INTO "users" (id, username, account_non_expired, account_non_locked, enabled, credentials_non_expired,
