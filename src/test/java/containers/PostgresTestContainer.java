@@ -13,7 +13,7 @@ public class PostgresTestContainer extends PostgreSQLContainer<PostgresTestConta
     public static final String PASSWORD = "postgres";
     public static final String DATABASE_NAME = "tenant1";
     public static final int CONTAINER_PORT = 5432;
-    public static final int LOCAL_PORT = 5435;
+    public static final int LOCAL_PORT = 5436;
     public static PostgreSQLContainer container;
 
     public PostgresTestContainer() {
