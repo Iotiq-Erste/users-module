@@ -18,6 +18,8 @@ import java.util.UUID;
 @Table(name = "users")
 @EqualsAndHashCode(callSuper = true)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type")
+@DiscriminatorValue("nativeUser")
 public class User extends AbstractPersistable<UUID> implements UserDetails {
 
     public static final String ENTITY_NAME = "user";
@@ -26,8 +28,6 @@ public class User extends AbstractPersistable<UUID> implements UserDetails {
     private AccountInfo accountInfo;
     @Embedded
     private Credentials credentials;
-    @Embedded
-    private KeycloakInfo keycloakInfo;
     @Embedded
     private AccountSecurity accountSecurity;
     @Embedded
@@ -38,7 +38,6 @@ public class User extends AbstractPersistable<UUID> implements UserDetails {
         this.credentials = new Credentials();
         this.accountSecurity = new AccountSecurity();
         this.personalInfo = new Person();
-        this.keycloakInfo = new KeycloakInfo();
     }
 
     @Override
@@ -86,9 +85,5 @@ public class User extends AbstractPersistable<UUID> implements UserDetails {
 
     public void setUsername(String username) {
         this.accountInfo.setUsername(username);
-    }
-
-    public void setKeycloakId(String keycloakId) {
-        this.keycloakInfo.setKeycloakId(keycloakId);
     }
 }
