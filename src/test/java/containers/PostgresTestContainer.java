@@ -1,9 +1,5 @@
 package containers;
 
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Ports;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 public class PostgresTestContainer extends PostgreSQLContainer<PostgresTestContainer> {
@@ -12,8 +8,6 @@ public class PostgresTestContainer extends PostgreSQLContainer<PostgresTestConta
     public static final String USERNAME = "postgres";
     public static final String PASSWORD = "postgres";
     public static final String DATABASE_NAME = "tenant1";
-    public static final int CONTAINER_PORT = 5432;
-    public static final int LOCAL_PORT = 5435;
     public static PostgreSQLContainer container;
 
     public PostgresTestContainer() {
@@ -25,11 +19,8 @@ public class PostgresTestContainer extends PostgreSQLContainer<PostgresTestConta
             container = new PostgresTestContainer()
                     .withDatabaseName(DATABASE_NAME)
                     .withUsername(USERNAME)
-                    .withPassword(PASSWORD)
-                    .withExposedPorts(CONTAINER_PORT)
-                    .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
-                            new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(LOCAL_PORT), new ExposedPort(CONTAINER_PORT)))
-                    ));
+                    .withPassword(PASSWORD);
+
         }
         return container;
     }

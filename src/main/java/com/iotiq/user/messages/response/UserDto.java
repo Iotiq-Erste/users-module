@@ -22,9 +22,12 @@ public class UserDto /*extends BaseDto*/ {
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setRole(user.getAccountSecurity().getRole());
-        dto.setFirstname(user.getPersonalInfo().getFirstName());
-        dto.setLastname(user.getPersonalInfo().getLastName());
-        dto.setEmail(user.getPersonalInfo().getEmail());
+        //Security check: personalInfo can be null
+        if (user.getPersonalInfo() != null) {
+            dto.setFirstname(user.getPersonalInfo().getFirstName());
+            dto.setLastname(user.getPersonalInfo().getLastName());
+            dto.setEmail(user.getPersonalInfo().getEmail());
+        }
         return dto;
     }
 }
