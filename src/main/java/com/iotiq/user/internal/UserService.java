@@ -3,6 +3,7 @@ package com.iotiq.user.internal;
 import com.iotiq.commons.domain.AbstractMapper;
 import com.iotiq.commons.exceptions.RequiredFieldMissingException;
 import com.iotiq.commons.util.PasswordUtil;
+import com.iotiq.user.domain.TransientUser;
 import com.iotiq.user.domain.User;
 import com.iotiq.user.domain.authorities.UserManagementAuthority;
 import com.iotiq.user.exceptions.DuplicateUserDataException;
@@ -16,7 +17,6 @@ import org.modelmapper.ExpressionMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -166,9 +166,9 @@ public class UserService {
 
     public User getCurrentUser() {
         // Retrieve the currently logged-in user
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (userDetails == null) throw new InvalidCredentialException();
-        return findByUserName(userDetails.getUsername());
+        TransientUser transientUser = (TransientUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (transientUser == null) throw new InvalidCredentialException();
+        return findById(transientUser.getId());
     }
 
     @Transactional
