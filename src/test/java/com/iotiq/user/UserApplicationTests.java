@@ -143,7 +143,6 @@ class UserApplicationTests {
         userUpdateDto.setEmail(MAIL + "updated");
         userUpdateDto.setFirstname(FIRSTNAME + "updated");
         userUpdateDto.setLastname(LASTNAME + "updated");
-        userUpdateDto.setUsername(USERNAME + "updated");
         userUpdateDto.setRole(BaseRole.ADMIN);
 
         ResultActions result = mockMvc.perform(
@@ -159,8 +158,7 @@ class UserApplicationTests {
                         jsonPath("$.id", is(id)),
                         jsonPath("$.email", is(MAIL + "updated")),
                         jsonPath("$.firstname", is(FIRSTNAME + "updated")),
-                        jsonPath("$.lastname", is(LASTNAME + "updated")),
-                        jsonPath("$.username", is(USERNAME + "updated"))
+                        jsonPath("$.lastname", is(LASTNAME + "updated"))
                 );
 
         assertPersistedUsers(users -> {
