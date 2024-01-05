@@ -3,6 +3,8 @@ package com.iotiq.user.internal;
 import com.iotiq.commons.domain.AbstractMapper;
 import com.iotiq.commons.exceptions.RequiredFieldMissingException;
 import com.iotiq.commons.util.PasswordUtil;
+import com.iotiq.user.domain.Person;
+import com.iotiq.user.domain.TransientUser;
 import com.iotiq.user.domain.User;
 import com.iotiq.user.domain.authorities.UserManagementAuthority;
 import com.iotiq.user.exceptions.DuplicateUserDataException;
@@ -16,7 +18,6 @@ import org.modelmapper.ExpressionMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +55,6 @@ public class UserService {
 
     @Transactional
     public User create(UserCreateDto request) {
-        validateUniqueUserData(request.getUsername(), request.getEmail());
 
         User user = new User();
 
@@ -71,32 +71,18 @@ public class UserService {
 
     @Transactional
     public User update(UUID id, UserUpdateDto request) {
-        validateUniqueUserDataWithExclusion(id, request.getUsername(), request.getEmail());
 
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-
-        user.setUsername(request.getUsername());
+        
+        if (user.getPersonalInfo() == null) {
+            user.setPersonalInfo(new Person());
+        }
         user.getPersonalInfo().setFirstName(request.getFirstname());
         user.getPersonalInfo().setLastName(request.getLastname());
         user.getPersonalInfo().setEmail(request.getEmail());
         user.setRole(request.getRole());
 
         return user;
-    }
-    private void validateUniqueUserData(String username, String email) {
-        boolean exists = userRepository.existsByAccountInfoUsernameOrPersonalInfoEmail(username, email);
-        if (exists) {
-            throw new DuplicateUserDataException("usernameOrEmail");
-        }
-    }
-
-    public void validateUniqueUserDataWithExclusion(UUID id, String username, String email) {
-        if (userRepository.existsByAccountInfoUsernameAndIdIsNot(username, id)) {
-            throw new DuplicateUserDataException("username");
-        }
-        if (userRepository.existsByPersonalInfoEmailAndIdIsNot(email, id)) {
-            throw new DuplicateUserDataException("email");
-        }
     }
 
     @Transactional
@@ -122,14 +108,6 @@ public class UserService {
         userRepository.save(user);
 
         return user;
-    }
-
-    private void updateIfAllowed(UserUpdateDto request, User user) {
-        User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal.getAuthorities().contains(UserManagementAuthority.UPDATE)) {
-            user.setUsername(request.getUsername());
-            user.setRole(request.getRole());
-        }
     }
 
     private void updatePassword(User user, UpdatePasswordDto request) {
@@ -166,9 +144,9 @@ public class UserService {
 
     public User getCurrentUser() {
         // Retrieve the currently logged-in user
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (userDetails == null) throw new InvalidCredentialException();
-        return findByUserName(userDetails.getUsername());
+        TransientUser transientUser = (TransientUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (transientUser == null) throw new InvalidCredentialException();
+        return findById(transientUser.getId());
     }
 
     @Transactional
