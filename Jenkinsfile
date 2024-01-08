@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage("Env Params") {
             steps {
-                scripts{
+                script{
                     env.COMMIT_MESSAGE = sh(script: "git log --pretty=short -1 | cat", returnStdout: true).trim()
                 }
                 sh 'printenv'
