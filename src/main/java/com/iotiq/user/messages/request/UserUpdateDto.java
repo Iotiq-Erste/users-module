@@ -8,15 +8,11 @@ import lombok.Data;
 
 @Data
 public class UserUpdateDto {
-    @NotEmpty
-    private String username;
     @NotNull
     private Role role;
-    @NotEmpty
     private String firstname;
-    @NotEmpty
     private String lastname;
-    @NotEmpty
-    @Email
+    @Email(message = "user.emailFormat")
+    @NotEmpty(message = "user.email")
     private String email;
 }

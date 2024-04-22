@@ -1,9 +1,7 @@
 package com.iotiq.user.domain;
 
 import com.iotiq.user.domain.authorities.Role;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +17,12 @@ import java.util.UUID;
 @Setter
 @Table(name = "users")
 @EqualsAndHashCode(callSuper = true)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type")
+@DiscriminatorValue("nativeUser")
 public class User extends AbstractPersistable<UUID> implements UserDetails {
+
+    public static final String ENTITY_NAME = "user";
 
     @Embedded
     private AccountInfo accountInfo;

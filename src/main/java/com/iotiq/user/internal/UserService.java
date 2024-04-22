@@ -3,14 +3,14 @@ package com.iotiq.user.internal;
 import com.iotiq.commons.domain.AbstractMapper;
 import com.iotiq.commons.exceptions.RequiredFieldMissingException;
 import com.iotiq.commons.util.PasswordUtil;
+import com.iotiq.user.domain.Person;
+import com.iotiq.user.domain.TransientUser;
 import com.iotiq.user.domain.User;
 import com.iotiq.user.domain.authorities.UserManagementAuthority;
+import com.iotiq.user.exceptions.DuplicateUserDataException;
 import com.iotiq.user.exceptions.InvalidCredentialException;
 import com.iotiq.user.exceptions.UserNotFoundException;
-import com.iotiq.user.messages.request.UpdatePasswordDto;
-import com.iotiq.user.messages.request.UserCreateDto;
-import com.iotiq.user.messages.request.UserFilter;
-import com.iotiq.user.messages.request.UserUpdateDto;
+import com.iotiq.user.messages.request.*;
 import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -40,16 +40,22 @@ public class UserService {
         return userRepository.findAll(userFilter.buildSpecification(), userFilter.buildPageable(sort));
     }
 
-    public User find(UUID id) {
+    public User findById(UUID id) {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
-    public User find(String username) {
+    public User findByUserName(String username) {
         return userRepository.findByAccountInfoUsername(username).orElseThrow(UserNotFoundException::new);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existByUserName(String username) {
+        return userRepository.existsByAccountInfoUsername(username);
     }
 
     @Transactional
     public User create(UserCreateDto request) {
+
         User user = new User();
 
         userMapper.map(request, user);
@@ -65,9 +71,12 @@ public class UserService {
 
     @Transactional
     public User update(UUID id, UserUpdateDto request) {
-        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-        user.setUsername(request.getUsername());
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        
+        if (user.getPersonalInfo() == null) {
+            user.setPersonalInfo(new Person());
+        }
         user.getPersonalInfo().setFirstName(request.getFirstname());
         user.getPersonalInfo().setLastName(request.getLastname());
         user.getPersonalInfo().setEmail(request.getEmail());
@@ -99,14 +108,6 @@ public class UserService {
         userRepository.save(user);
 
         return user;
-    }
-
-    private void updateIfAllowed(UserUpdateDto request, User user) {
-        User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal.getAuthorities().contains(UserManagementAuthority.UPDATE)) {
-            user.setUsername(request.getUsername());
-            user.setRole(request.getRole());
-        }
     }
 
     private void updatePassword(User user, UpdatePasswordDto request) {
@@ -141,4 +142,22 @@ public class UserService {
         }
     }
 
+    public User getCurrentUser() {
+        // Retrieve the currently logged-in user
+        TransientUser transientUser = (TransientUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (transientUser == null) throw new InvalidCredentialException();
+        return findById(transientUser.getId());
+    }
+
+    @Transactional
+    public User updateProfile(User user, ProfileUpdateRequest request) {
+        if (userRepository.existsByAccountInfoUsernameAndIdIsNot(request.getUsername(), user.getId())) {
+            throw new DuplicateUserDataException("username");
+        }
+        user.setUsername(request.getUsername());
+        user.getPersonalInfo().setFirstName(request.getFirstname());
+        user.getPersonalInfo().setLastName(request.getLastname());
+
+        return user;
+    }
 }
