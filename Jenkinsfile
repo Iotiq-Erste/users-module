@@ -1,8 +1,8 @@
 pipeline {
     agent any
-    
+
     environment {
-        DEPLOYMENT_BRANCH = "master"
+        DEPLOYMENT_BRANCH = "culturati"
         PARENT_PROJECT_DEPLOYMENT_JOB = "../culturati-backend/master"
     }
 
