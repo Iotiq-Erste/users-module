@@ -1,9 +1,9 @@
 pipeline {
     agent any
-    
+
     environment {
-        DEPLOYMENT_BRANCH = "master"
-        PARENT_PROJECT_DEPLOYMENT_JOB = "../culturati-backend/master"
+        DEPLOYMENT_BRANCH = "kimono"
+        PARENT_PROJECT_DEPLOYMENT_JOB = "../culturati-kimono/master"
     }
 
     stages {
