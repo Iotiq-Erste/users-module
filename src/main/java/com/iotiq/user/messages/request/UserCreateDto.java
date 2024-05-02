@@ -16,4 +16,5 @@ public class UserCreateDto extends UserUpdateDto {
     @NotEmpty(message = "user.password")
     @Size(min = 4, max = 100, message = "user.passwordSize")
     private String password;
+    private String externalUserId;
 }
