@@ -27,4 +27,15 @@ public enum BaseRole implements Role {
     public List<GrantedAuthority> getAuthorities() {
         return authorities;
     }
+
+    @Override
+    public int compareTo(Role other) {
+        if (other == null) {
+            return -1;
+        } else if (other instanceof BaseRole baseRole) {
+            return super.compareTo(baseRole);
+        } else {
+            return 1; // other role has more precedence
+        }
+    }
 }

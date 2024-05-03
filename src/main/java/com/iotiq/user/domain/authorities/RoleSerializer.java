@@ -11,6 +11,10 @@ import java.io.IOException;
 public class RoleSerializer extends JsonSerializer<Role> {
     @Override
     public void serialize(Role role, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeString(role.name());
+        jsonGenerator.writeString(asString(role));
+    }
+
+    public static String asString(Role role) {
+        return role.name();
     }
 }
