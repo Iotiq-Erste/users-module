@@ -1,4 +1,4 @@
-package com.iotiq.user;
+package com.iotiq.user.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
