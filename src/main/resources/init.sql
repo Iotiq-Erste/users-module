@@ -1,4 +1,4 @@
-create database tenant1;
+drop table if exists users;
 create table users
 (
     id                      uuid    not null
@@ -19,6 +19,6 @@ create table users
 );
 
 INSERT INTO "users" (id, username, account_non_expired, account_non_locked, enabled, credentials_non_expired,
-                          password, email, first_name, last_name, phone_number, web_page, role)
+                     password, email, first_name, last_name, phone_number, web_page, role)
 VALUES ('f9cd7961-c8a9-4cb6-b00b-ab906f3da978', 'admin', false, false, false, false,
         '$2a$10$hsW5rHZueKkagA0E2rRSY.D6jK7FS4no.7nLn6l2VT0HQdyV5.1vO', 'email@m.com', 'fn', 'ln', null, null, 'ADMIN');
