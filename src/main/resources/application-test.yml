@@ -3,6 +3,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: none
 app:
   jwt:
     secret: aVDuUhiKSBlmn1muHNRfBPKwJu35l7BuaVDuUhiKSBlmn1muHNRfBPKwJu35l7BuaVDuUhiKSBlmn1muHNRfBPKwJu35l7BuaVDuUhiKSBlmn1muHNRfBPKwJu35l7Bu
