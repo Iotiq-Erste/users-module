@@ -10,7 +10,11 @@ import com.iotiq.user.domain.authorities.UserManagementAuthority;
 import com.iotiq.user.exceptions.DuplicateUserDataException;
 import com.iotiq.user.exceptions.InvalidCredentialException;
 import com.iotiq.user.exceptions.UserNotFoundException;
-import com.iotiq.user.messages.request.*;
+import com.iotiq.user.messages.request.ProfileUpdateRequest;
+import com.iotiq.user.messages.request.UpdatePasswordDto;
+import com.iotiq.user.messages.request.UserCreateDto;
+import com.iotiq.user.messages.request.UserFilter;
+import com.iotiq.user.messages.request.UserUpdateDto;
 import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +69,7 @@ public class UserService {
         setIfNotNull(s -> user.getPersonalInfo().setFirstName(s), request::getFirstname);
         setIfNotNull(s -> user.getPersonalInfo().setLastName(s), request::getLastname);
         setIfNotNull(s -> user.getPersonalInfo().setEmail(s), request::getEmail);
+        setIfNotNull(s -> user.getCredentials().setExternalUserId(s), request::getExternalUserId);
 
         return userRepository.save(user);
     }
@@ -73,7 +78,7 @@ public class UserService {
     public User update(UUID id, UserUpdateDto request) {
 
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        
+
         if (user.getPersonalInfo() == null) {
             user.setPersonalInfo(new Person());
         }
@@ -124,6 +129,12 @@ public class UserService {
 
     private void setPassword(User user, String newPassword) {
         user.setPassword(passwordUtil.encode(newPassword));
+    }
+
+    @Transactional
+    public <T extends UserCreateDto> User loadExternalUserOrCreate(T userDetails) {
+        return userRepository.findByCredentialsExternalUserId(userDetails.getExternalUserId())
+                .orElseGet(() -> create(userDetails));
     }
 
     protected static class UserMapper extends AbstractMapper<UserUpdateDto, User> {

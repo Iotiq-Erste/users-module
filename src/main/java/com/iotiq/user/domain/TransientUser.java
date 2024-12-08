@@ -1,6 +1,7 @@
 package com.iotiq.user.domain;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
@@ -8,13 +9,18 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
+@Setter
 @Getter
 public class TransientUser extends User {
-
-    private final UUID id;
+    private UUID id;
 
     public TransientUser(UUID id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
         super(username, password, authorities);
+        this.id = id;
+    }
+
+    public TransientUser(UUID id, String username, Collection<? extends GrantedAuthority> authorities) {
+        super(username, "", authorities);
         this.id = id;
     }
 

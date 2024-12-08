@@ -28,6 +28,10 @@ public class RoleDeserializer extends JsonDeserializer<Role> {
 
         String roleString = jsonNode.textValue();
 
+        return asRole(roleString);
+    }
+
+    public Role asRole(String roleString) {
         for (RoleConverter converter : converters) {
             Role role = converter.convert(roleString);
 

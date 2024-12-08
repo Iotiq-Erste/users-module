@@ -10,4 +10,5 @@ import java.io.Serializable;
 public class Credentials implements Serializable {
     String password;
     boolean credentialsNonExpired;
+    private String externalUserId;
 }
